@@ -77,6 +77,24 @@ def preprocess(data: pd.DataFrame):
     print(f"[train] Dropped {before_wall - len(data):,} into-wall frames  "
           f"({len(data):,} remaining)")
 
+    # ________________________________________________________________
+    # Drop the N frames leading up to each death event within every episode
+    PRE_DEATH_WINDOW = 15  # frames to strip before each death
+    before_death = len(data)
+    data = data.reset_index(drop=True)
+    lives_delta = data.groupby("episode_id")["lives_remaining"].transform(
+        lambda s: s.diff().fillna(0)
+    )
+    death_positions = data.index[lives_delta < 0].tolist()
+    pre_death_rows = set()
+    for pos in death_positions:
+        for i in range(max(0, pos - PRE_DEATH_WINDOW), pos + 1):
+            pre_death_rows.add(i)
+    data = data[~data.index.isin(pre_death_rows)].copy()
+    print(f"[train] Dropped {before_death - len(data):,} pre-death frames "
+          f"(window={PRE_DEATH_WINDOW})  ({len(data):,} remaining)")
+    # ______________________________________________________________
+
     if len(data) < MIN_ROWS:
         sys.exit(
             f"[train] Only {len(data)} usable rows after filtering — need at "

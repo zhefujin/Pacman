@@ -93,7 +93,13 @@ class DataRecorder:
         if not self._enabled or self._writer is None:
             return
         row = self._extract_features(scene)
-        row["action"] = self._current_action
+        pacman = scene.pacman
+        _rotate_to_action = {0: ACTION_RIGHT, 1: ACTION_DOWN, 2: ACTION_LEFT, 3: ACTION_UP}
+        if pacman.speed > 0 and pacman.rotate in _rotate_to_action:
+            action = _rotate_to_action[pacman.rotate]
+        else:
+            action = ACTION_NONE
+        row["action"] = action
         row["episode_id"] = self._episode_id
         self._writer.writerow(row)
 
