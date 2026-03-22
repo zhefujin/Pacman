@@ -1,3 +1,4 @@
+
 import argparse
 import glob
 import os
@@ -18,6 +19,8 @@ LABEL_ENCODER_FILENAME = "label_encoder.pkl"
 # Columns that are metadata / not used as features
 NON_FEATURE_COLS = {"episode_id", "action"}
 
+#DROP_FEATURE_COLS = {"direction_left", "direction_right", "direction_up", "direction_down"}
+DROP_FEATURE_COLS = {}
 # "none" frames (Pacman not pressing any key) are the majority class and
 # mostly uninformative — we drop them before training.
 DROP_ACTIONS = {"none"}
@@ -77,24 +80,6 @@ def preprocess(data: pd.DataFrame):
     print(f"[train] Dropped {before_wall - len(data):,} into-wall frames  "
           f"({len(data):,} remaining)")
 
-    # ________________________________________________________________
-    # Drop the N frames leading up to each death event within every episode
-    PRE_DEATH_WINDOW = 15  # frames to strip before each death
-    before_death = len(data)
-    data = data.reset_index(drop=True)
-    lives_delta = data.groupby("episode_id")["lives_remaining"].transform(
-        lambda s: s.diff().fillna(0)
-    )
-    death_positions = data.index[lives_delta < 0].tolist()
-    pre_death_rows = set()
-    for pos in death_positions:
-        for i in range(max(0, pos - PRE_DEATH_WINDOW), pos + 1):
-            pre_death_rows.add(i)
-    data = data[~data.index.isin(pre_death_rows)].copy()
-    print(f"[train] Dropped {before_death - len(data):,} pre-death frames "
-          f"(window={PRE_DEATH_WINDOW})  ({len(data):,} remaining)")
-    # ______________________________________________________________
-
     if len(data) < MIN_ROWS:
         sys.exit(
             f"[train] Only {len(data)} usable rows after filtering — need at "
@@ -107,7 +92,7 @@ def preprocess(data: pd.DataFrame):
     print(f"[train] Classes: {list(le.classes_)}")
 
     # Build feature matrix — drop metadata columns
-    drop_cols = NON_FEATURE_COLS | {"source_file"}
+    drop_cols = NON_FEATURE_COLS | {"source_file"} | DROP_FEATURE_COLS
     feature_cols = [c for c in data.columns if c not in drop_cols]
     X = data[feature_cols].values.astype(np.float32)
 

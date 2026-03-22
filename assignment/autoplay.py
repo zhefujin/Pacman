@@ -33,6 +33,10 @@ class AutoPlayAgent:
         self._enabled: bool = False
         self._model: xgb.XGBClassifier | None = None
         self._label_classes: list | None = None   # e.g. ['down','left','right','up']
+        self._action_history: list = []
+        self._HISTORY_LEN = 6
+        self._stuck_cooldown = 0
+        self._last_action: str | None = None
 
     def enable(self, model_dir: str = "assignment") -> None:
         model_path = os.path.join(model_dir, _MODEL_SUBDIR, _MODEL_FILENAME)
@@ -69,7 +73,8 @@ class AutoPlayAgent:
             return
 
         features = self._extract_features(scene)
-        action   = self._predict(features)
+        action = self._predict(features)
+        action = self._suppress_oscillation(action)
         self._post_event(action)
 
     @staticmethod
@@ -159,6 +164,27 @@ class AutoPlayAgent:
     def _predict(self, features: np.ndarray) -> str:
         idx = int(self._model.predict(features)[0])
         return self._label_classes[idx]
+
+    _OPPOSITE = {"left": "right", "right": "left", "up": "down", "down": "up"}
+
+    def _suppress_oscillation(self, action: str) -> str:
+        if self._stuck_cooldown > 0:
+            self._stuck_cooldown -= 1
+            return self._last_action
+
+        self._action_history.append(action)
+        if len(self._action_history) > self._HISTORY_LEN:
+            self._action_history.pop(0)
+
+        if len(self._action_history) == self._HISTORY_LEN:
+            unique = set(self._action_history)
+            if (len(unique) == 2 and
+                    self._OPPOSITE.get(list(unique)[0]) == list(unique)[1]):
+                self._stuck_cooldown = 10
+                self._action_history.clear()
+
+        self._last_action = action
+        return action
 
     @staticmethod
     def _post_event(action: str) -> None:
