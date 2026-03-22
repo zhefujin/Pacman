@@ -62,6 +62,21 @@ def preprocess(data: pd.DataFrame):
     print(f"[train] Dropped {before - len(data):,} 'none'-action rows  "
           f"({len(data):,} remaining)")
 
+    # Drop frames where the recorded action points directly into a wall.
+    _wall_pairs = [
+        ("right", "wall_right"),
+        ("left",  "wall_left"),
+        ("up",    "wall_up"),
+        ("down",  "wall_down"),
+    ]
+    before_wall = len(data)
+    into_wall_mask = pd.Series(False, index=data.index)
+    for action, wall_col in _wall_pairs:
+        into_wall_mask |= (data["action"] == action) & (data[wall_col] == 1)
+    data = data[~into_wall_mask].copy()
+    print(f"[train] Dropped {before_wall - len(data):,} into-wall frames  "
+          f"({len(data):,} remaining)")
+
     if len(data) < MIN_ROWS:
         sys.exit(
             f"[train] Only {len(data)} usable rows after filtering — need at "

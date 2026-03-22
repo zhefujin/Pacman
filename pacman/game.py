@@ -9,14 +9,18 @@ from pacman.scenes.menu_scene import MenuScene
 from pacman.sound import SoundController, Sounds
 from pacman.storage import StorageLoader
 from assignment.recorder import Recorder
+from assignment.autoplay import AutoPlayer
 
 
 class Game:
-    def __init__(self, record: bool = False, record_dir: str = "recordings") -> None:
+    def __init__(self, record: bool = False, record_dir: str = "recordings", autoplay: bool = False, model_dir: str = "assignment") -> None:
         self.__objects = GameObjects()
 
         if record:
             Recorder().enable(record_dir)
+
+        if autoplay:
+            AutoPlayer().enable(model_dir)
 
         self.__screen = display.set_mode(tuple(Cfg.RESOLUTION), SCALED)
         self.__clock = time.Clock()

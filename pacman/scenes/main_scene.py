@@ -13,6 +13,7 @@ from pacman.sound import SoundController, Sounds
 from pacman.storage import LevelStorage, SettingsStorage, SkinStorage
 
 from assignment.recorder import ACTION_DOWN, ACTION_LEFT, ACTION_RIGHT, ACTION_UP, Recorder
+from assignment.autoplay import AutoPlayer
 
 from .base import BaseScene, SceneManager
 
@@ -202,6 +203,7 @@ class MainScene(BaseScene):
             ghost.home_ai(self.__seeds_eaten)
 
     def __game_logic(self):
+        AutoPlayer().step(self)
         super().process_logic()
         self.__play_sound()
         self.__ghost_ai()

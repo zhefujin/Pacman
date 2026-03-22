@@ -27,13 +27,28 @@ def parse_args():
         default="recordings",
         help="Directory to save recorded CSV files (default: recordings). Only effective if --record is specified.",
     )
+    parser.add_argument(
+        "--autoplay",
+        action="store_true",
+        help="Let the trained AI model control Pacman autonomously.",
+    )
+    parser.add_argument(
+        "--model-dir",
+        default="assignment",
+        help="Directory containing the trained model (default: assignment).",
+    )
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
     pg_setup()
-    game = Game(record=args.record, record_dir=args.record_dir)
+    game = Game(
+        record=args.record,
+        record_dir=args.record_dir,
+        autoplay=args.autoplay,
+        model_dir=args.model_dir,
+    )
     game.main_loop()
 
 
