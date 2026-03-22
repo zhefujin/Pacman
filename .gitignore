@@ -310,3 +310,7 @@ build
 
 # Recording data
 recordings/*.csv
+
+# Model artifacts
+assignment/model/
+assignment/checkpoints/
