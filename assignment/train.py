@@ -19,8 +19,7 @@ LABEL_ENCODER_FILENAME = "label_encoder.pkl"
 # Columns that are metadata / not used as features
 NON_FEATURE_COLS = {"episode_id", "action"}
 
-#DROP_FEATURE_COLS = {"direction_left", "direction_right", "direction_up", "direction_down"}
-DROP_FEATURE_COLS = {}
+DROP_FEATURE_COLS = {"direction_left", "direction_right", "direction_up", "direction_down"}
 # "none" frames (Pacman not pressing any key) are the majority class and
 # mostly uninformative — we drop them before training.
 DROP_ACTIONS = {"none"}

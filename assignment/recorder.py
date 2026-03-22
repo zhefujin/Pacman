@@ -12,6 +12,7 @@ FEATURE_COLUMNS = [
     # self
     "pacman_x", "pacman_y",
     "direction_right", "direction_left", "direction_up", "direction_down",
+    "is_reversing_right", "is_reversing_left", "is_reversing_up", "is_reversing_down",
     "wall_right", "wall_left", "wall_up", "wall_down",
     "lives_remaining",
     # gosts
@@ -124,7 +125,10 @@ class DataRecorder:
         dir_left = int(moving and rotate == 2)
         dir_up = int(moving and rotate == 3)
         dir_down = int(moving and rotate == 1)
-
+        is_reversing_right = int(moving and rotate == 2)
+        is_reversing_left = int(moving and rotate == 0)
+        is_reversing_up = int(moving and rotate == 1)
+        is_reversing_down = int(moving and rotate == 3)
         # Wall flags (movement_cell returns [right, down, left, up])
         # True = passable; invert to get wall=1
         walls = pacman.movement_cell(self._get_cell(pacman.rect))
@@ -167,6 +171,10 @@ class DataRecorder:
             "direction_right": dir_right, "direction_left": dir_left,
             "direction_up": dir_up, "direction_down": dir_down,
             "wall_right": wall_right, "wall_left": wall_left,
+            "is_reversing_right": is_reversing_right,
+            "is_reversing_left": is_reversing_left,
+            "is_reversing_up": is_reversing_up,
+            "is_reversing_down": is_reversing_down,
             "wall_up": wall_up, "wall_down": wall_down,
             "lives_remaining": lives,
             **ghost_feats,

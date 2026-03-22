@@ -34,7 +34,7 @@ class AutoPlayAgent:
         self._model: xgb.XGBClassifier | None = None
         self._label_classes: list | None = None   # e.g. ['down','left','right','up']
         self._action_history: list = []
-        self._HISTORY_LEN = 6
+        self._HISTORY_LEN = 4
         self._stuck_cooldown = 0
         self._last_action: str | None = None
 
@@ -100,10 +100,18 @@ class AutoPlayAgent:
         # Direction one-hot  (rotate: 0=right 1=down 2=left 3=up)
         rotate = pacman.rotate
         moving = pacman.speed > 0
-        dir_right = int(moving and rotate == 0)
-        dir_left = int(moving and rotate == 2)
-        dir_up = int(moving and rotate == 3)
-        dir_down = int(moving and rotate == 1)
+        #dir_right = int(moving and rotate == 0)
+        #dir_left = int(moving and rotate == 2)
+        #dir_up = int(moving and rotate == 3)
+        #dir_down = int(moving and rotate == 1)
+        cur_right = moving and rotate == 0
+        cur_left = moving and rotate == 2
+        cur_up = moving and rotate == 3
+        cur_down = moving and rotate == 1
+        is_reversing_right = int(cur_left)
+        is_reversing_left = int(cur_right)
+        is_reversing_up = int(cur_down)
+        is_reversing_down = int(cur_up)
 
         # Wall flags  (movement_cell: [right, down, left, up], True=passable)
         walls = pacman.movement_cell(self._get_cell(pacman.rect))
@@ -149,7 +157,8 @@ class AutoPlayAgent:
 
         row = [
             px, py,
-            dir_right, dir_left, dir_up, dir_down,
+            #dir_right, dir_left, dir_up, dir_down,
+            is_reversing_right, is_reversing_left, is_reversing_up, is_reversing_down,
             wall_right, wall_left, wall_up, wall_down,
             lives,
             *ghost_vals,
@@ -178,10 +187,22 @@ class AutoPlayAgent:
 
         if len(self._action_history) == self._HISTORY_LEN:
             unique = set(self._action_history)
-            if (len(unique) == 2 and
-                    self._OPPOSITE.get(list(unique)[0]) == list(unique)[1]):
-                self._stuck_cooldown = 10
+            is_oscillating = False
+            if len(unique) == 2:
+                a, b = list(unique)
+                if self._OPPOSITE.get(a) == b:
+                    pairs = sum(
+                        1 for i in range(len(self._action_history) - 1)
+                        if self._OPPOSITE.get(self._action_history[i]) == self._action_history[i + 1]
+                    )
+                    is_oscillating = pairs >= 2
+            if is_oscillating:
+                self._stuck_cooldown = 20
                 self._action_history.clear()
+                opposite = self._OPPOSITE.get(self._last_action)
+                candidates = [a for a in ["up", "down", "left", "right"]
+                              if a != self._last_action and a != opposite]
+                self._last_action = candidates[0] if candidates else self._last_action
 
         self._last_action = action
         return action
