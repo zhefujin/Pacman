@@ -12,6 +12,8 @@ from pacman.skin import SkinEnum
 from pacman.sound import SoundController, Sounds
 from pacman.storage import LevelStorage, SettingsStorage, SkinStorage
 
+from assignment.recorder import ACTION_DOWN, ACTION_LEFT, ACTION_RIGHT, ACTION_UP, Recorder
+
 from .base import BaseScene, SceneManager
 
 
@@ -206,6 +208,7 @@ class MainScene(BaseScene):
         self.__process_collision()
         self.__update_score_text()
         self.__check_game_status()
+        Recorder().record_frame(self)
 
     # endregion
 
@@ -231,6 +234,15 @@ class MainScene(BaseScene):
             SceneManager().append(PauseScene(self._screen))
         self.__cheats.event_handler(event)
 
+        _action_map = {
+            EvenType.UP_BTN:    ACTION_UP,
+            EvenType.DONW_BTN:  ACTION_DOWN,
+            EvenType.LEFT_BTN:  ACTION_LEFT,
+            EvenType.RIGHT_BTN: ACTION_RIGHT,
+        }
+        if event.type in _action_map:
+            Recorder().set_action(_action_map[event.type])
+
     def on_enter(self) -> None:
         for ch in SoundCh:
             SoundController.unpause(ch)
@@ -240,6 +252,7 @@ class MainScene(BaseScene):
             SoundController.pause(ch)
 
     def on_first_enter(self) -> None:
+        Recorder().next_episode()
         Sounds.update_random_sounds()
         SoundController.play(SoundCh.BACKGROUND, Sounds.INTRO)
 

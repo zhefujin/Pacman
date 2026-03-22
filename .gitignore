@@ -307,3 +307,6 @@ storage.json
 saves/*
 !.gitkeep
 build
+
+# Recording data
+recordings/*.csv

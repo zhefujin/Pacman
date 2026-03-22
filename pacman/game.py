@@ -8,11 +8,15 @@ from pacman.scenes import SceneManager
 from pacman.scenes.menu_scene import MenuScene
 from pacman.sound import SoundController, Sounds
 from pacman.storage import StorageLoader
+from assignment.recorder import Recorder
 
 
 class Game:
-    def __init__(self) -> None:
+    def __init__(self, record: bool = False, record_dir: str = "recordings") -> None:
         self.__objects = GameObjects()
+
+        if record:
+            Recorder().enable(record_dir)
 
         self.__screen = display.set_mode(tuple(Cfg.RESOLUTION), SCALED)
         self.__clock = time.Clock()
@@ -38,6 +42,7 @@ class Game:
 
     def exit_game(self) -> None:
         self.__storage_loader.to_file()
+        Recorder().close()
         print("Bye bye")
         exit()
 
