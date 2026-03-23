@@ -11,7 +11,7 @@ FEATURE_COLUMNS = [
     "episode_id",
     # self
     "pacman_x", "pacman_y",
-    "direction_right", "direction_left", "direction_up", "direction_down",
+    "moving_dir",
     "is_reversing_right", "is_reversing_left", "is_reversing_up", "is_reversing_down",
     "wall_right", "wall_left", "wall_up", "wall_down",
     "lives_remaining",
@@ -121,10 +121,16 @@ class DataRecorder:
         # rotate: 0=right, 1=down, 2=left, 3=up  (None when stopped)
         rotate = pacman.rotate
         moving = pacman.speed > 0
-        dir_right = int(moving and rotate == 0)
-        dir_left = int(moving and rotate == 2)
-        dir_up = int(moving and rotate == 3)
-        dir_down = int(moving and rotate == 1)
+        if not moving:
+            moving_dir = 0
+        elif rotate == 0:
+            moving_dir = 1
+        elif rotate == 2:
+            moving_dir = 2
+        elif rotate == 3:
+            moving_dir = 3
+        else:
+            moving_dir = 4
         is_reversing_right = int(moving and rotate == 2)
         is_reversing_left = int(moving and rotate == 0)
         is_reversing_up = int(moving and rotate == 1)
@@ -168,8 +174,7 @@ class DataRecorder:
         seeds_ratio = round(seeds_eaten_count / TOTAL_SEEDS, 6)
         return {
             "pacman_x": px, "pacman_y": py,
-            "direction_right": dir_right, "direction_left": dir_left,
-            "direction_up": dir_up, "direction_down": dir_down,
+            "moving_dir": moving_dir,
             "wall_right": wall_right, "wall_left": wall_left,
             "is_reversing_right": is_reversing_right,
             "is_reversing_left": is_reversing_left,

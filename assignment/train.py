@@ -19,7 +19,10 @@ LABEL_ENCODER_FILENAME = "label_encoder.pkl"
 # Columns that are metadata / not used as features
 NON_FEATURE_COLS = {"episode_id", "action"}
 
-DROP_FEATURE_COLS = {"direction_left", "direction_right", "direction_up", "direction_down"}
+DROP_FEATURE_COLS = {
+    #"direction_left", "direction_right", "direction_up", "direction_down",
+    "is_reversing_right", "is_reversing_left", "is_reversing_up", "is_reversing_down",
+}
 # "none" frames (Pacman not pressing any key) are the majority class and
 # mostly uninformative — we drop them before training.
 DROP_ACTIONS = {"none"}
@@ -147,7 +150,7 @@ def build_model(num_classes: int, seed: int = 0,
                 callbacks: list = None) -> xgb.XGBClassifier:
     return xgb.XGBClassifier(
         n_estimators=500,
-        learning_rate=0.05,
+        learning_rate=0.025,
         max_depth=6,
         subsample=0.8,
         colsample_bytree=0.8,

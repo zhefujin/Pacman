@@ -100,18 +100,28 @@ class AutoPlayAgent:
         # Direction one-hot  (rotate: 0=right 1=down 2=left 3=up)
         rotate = pacman.rotate
         moving = pacman.speed > 0
+        if not moving:
+            moving_dir = 0
+        elif rotate == 0:
+            moving_dir = 1
+        elif rotate == 2:
+            moving_dir = 2
+        elif rotate == 3:
+            moving_dir = 3
+        else:
+            moving_dir = 4
         #dir_right = int(moving and rotate == 0)
         #dir_left = int(moving and rotate == 2)
         #dir_up = int(moving and rotate == 3)
         #dir_down = int(moving and rotate == 1)
-        cur_right = moving and rotate == 0
-        cur_left = moving and rotate == 2
-        cur_up = moving and rotate == 3
-        cur_down = moving and rotate == 1
-        is_reversing_right = int(cur_left)
-        is_reversing_left = int(cur_right)
-        is_reversing_up = int(cur_down)
-        is_reversing_down = int(cur_up)
+        #cur_right = moving and rotate == 0
+        #cur_left = moving and rotate == 2
+        #cur_up = moving and rotate == 3
+        #cur_down = moving and rotate == 1
+        #is_reversing_right = int(cur_left)
+        #is_reversing_left = int(cur_right)
+        #is_reversing_up = int(cur_down)
+        #is_reversing_down = int(cur_up)
 
         # Wall flags  (movement_cell: [right, down, left, up], True=passable)
         walls = pacman.movement_cell(self._get_cell(pacman.rect))
@@ -157,8 +167,9 @@ class AutoPlayAgent:
 
         row = [
             px, py,
+            moving_dir,
             #dir_right, dir_left, dir_up, dir_down,
-            is_reversing_right, is_reversing_left, is_reversing_up, is_reversing_down,
+            #is_reversing_right, is_reversing_left, is_reversing_up, is_reversing_down,
             wall_right, wall_left, wall_up, wall_down,
             lives,
             *ghost_vals,
