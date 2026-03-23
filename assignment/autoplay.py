@@ -102,14 +102,19 @@ class AutoPlayAgent:
         moving = pacman.speed > 0
         if not moving:
             moving_dir = 0
+            moving_axis = 0
         elif rotate == 0:
             moving_dir = 1
+            moving_axis = 1
         elif rotate == 2:
             moving_dir = 2
+            moving_axis = 1
         elif rotate == 3:
             moving_dir = 3
+            moving_axis = 2
         else:
             moving_dir = 4
+            moving_axis = 2
         #dir_right = int(moving and rotate == 0)
         #dir_left = int(moving and rotate == 2)
         #dir_up = int(moving and rotate == 3)
@@ -168,6 +173,7 @@ class AutoPlayAgent:
         row = [
             px, py,
             moving_dir,
+            #moving_axis,
             #dir_right, dir_left, dir_up, dir_down,
             #is_reversing_right, is_reversing_left, is_reversing_up, is_reversing_down,
             wall_right, wall_left, wall_up, wall_down,

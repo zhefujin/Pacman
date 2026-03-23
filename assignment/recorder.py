@@ -12,6 +12,7 @@ FEATURE_COLUMNS = [
     # self
     "pacman_x", "pacman_y",
     "moving_dir",
+    "moving_axis",
     "is_reversing_right", "is_reversing_left", "is_reversing_up", "is_reversing_down",
     "wall_right", "wall_left", "wall_up", "wall_down",
     "lives_remaining",
@@ -123,14 +124,19 @@ class DataRecorder:
         moving = pacman.speed > 0
         if not moving:
             moving_dir = 0
+            moving_axis = 0
         elif rotate == 0:
             moving_dir = 1
+            moving_axis = 1
         elif rotate == 2:
             moving_dir = 2
+            moving_axis = 1
         elif rotate == 3:
             moving_dir = 3
+            moving_axis = 2
         else:
             moving_dir = 4
+            moving_axis = 2
         is_reversing_right = int(moving and rotate == 2)
         is_reversing_left = int(moving and rotate == 0)
         is_reversing_up = int(moving and rotate == 1)
@@ -175,6 +181,7 @@ class DataRecorder:
         return {
             "pacman_x": px, "pacman_y": py,
             "moving_dir": moving_dir,
+            "moving_axis": moving_axis,
             "wall_right": wall_right, "wall_left": wall_left,
             "is_reversing_right": is_reversing_right,
             "is_reversing_left": is_reversing_left,
